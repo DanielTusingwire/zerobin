@@ -605,13 +605,27 @@ export default function CustomerRequestScreen() {
     return (
         <View style={styles.container}>
             {/* Header */}
-            <View style={[styles.header, { paddingTop: insets.top }]}>
+            <View style={[
+                styles.header,
+                { paddingTop: insets.top },
+                currentStep !== 'location' && styles.headerWithLocation
+            ]}>
                 <TouchableOpacity
                     style={styles.backButton}
                     onPress={handleBackPress}
                 >
                     <Ionicons name="arrow-back" size={24} color={theme.colors.text} />
                 </TouchableOpacity>
+
+                {/* Location Display - only show after location is selected */}
+                {currentStep !== 'location' && requestData.location && (
+                    <View style={styles.locationDisplay}>
+                        <Ionicons name="location" size={16} color={theme.colors.primary} />
+                        <Text style={styles.locationText} numberOfLines={1}>
+                            {requestData.location}
+                        </Text>
+                    </View>
+                )}
 
                 <View style={styles.profileButton}>
                     <View style={styles.profileImage}>
@@ -707,6 +721,15 @@ const styles = StyleSheet.create({
         paddingBottom: 15,
         backgroundColor: 'transparent',
     },
+    headerWithLocation: {
+        backgroundColor: 'white',
+        paddingBottom: 12,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 5,
+    },
     backButton: {
         width: 40,
         height: 40,
@@ -738,6 +761,26 @@ const styles = StyleSheet.create({
         color: 'white',
         fontSize: 16,
         fontWeight: '600',
+    },
+    locationDisplay: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginHorizontal: 15,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        backgroundColor: '#F8F9FA',
+        borderRadius: 20,
+        maxWidth: 200,
+    },
+    locationText: {
+        fontSize: 14,
+        fontWeight: '500',
+        color: theme.colors.text,
+        marginLeft: 6,
+        flex: 1,
+        textAlign: 'center',
     },
     map: {
         flex: 1,
@@ -1085,8 +1128,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 6,
-        minWidth: 80,
+        minWidth: 90,
         justifyContent: 'center',
+
     },
     timeSlotDisabled: {
         backgroundColor: '#F5F5F5',
