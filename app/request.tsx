@@ -4,10 +4,12 @@ import React, { useCallback, useState } from 'react';
 import { Alert, Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import MapView, { Marker } from 'react-native-maps';
 import DateTimeStep from '../components/customer/request-steps/DateTimeStep';
 import LocationStep from '../components/customer/request-steps/LocationStep';
 import WasteTypeStep from '../components/customer/request-steps/WasteTypeStep';
 import { RequestSuccess } from '../components/customer/RequestSuccess';
+import { addressToCoords } from '../constants/locationMap';
 import { theme } from '../constants/theme';
 import { useAppContext, useCustomerContext } from '../contexts';
 import { RequestStatus, WasteType } from '../types/common';
@@ -51,7 +53,9 @@ export default function CustomerRequestScreen() {
   }, []);
 
   const handleWasteTypeToggle = useCallback((type: string) => {
-    setSelectedTypes(prev => (prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]));
+    setSelectedTypes([type]);
+    setRequestData(prev => ({ ...prev, wasteTypes: [type] }));
+    setTimeout(() => setCurrentStep('dateTime'), 200); // slight delay for UI feedback
   }, []);
 
   const handleWasteTypeNext = useCallback(() => {
@@ -147,21 +151,11 @@ export default function CustomerRequestScreen() {
         return <LocationStep onSelect={handleLocationSelect} adaptiveStyles={{ padding: 20, fontSize: 16, spacing: 12 }} />;
       case 'wasteType':
         return (
-          <>
-            <WasteTypeStep
-              selectedTypes={selectedTypes}
-              onSelect={handleWasteTypeToggle}
-              adaptiveStyles={{ padding: 20, fontSize: 16, spacing: 12 }}
-            />
-            {/* Centered text, height increased above */}
-            <TouchableOpacity
-              style={{ marginTop: 20, marginBottom: 20, width: '100%', height: 48, backgroundColor: theme.colors.primary, borderRadius: 8, justifyContent: 'center', alignItems: 'center' }}
-              onPress={handleWasteTypeNext}
-              disabled={selectedTypes.length === 0}
-            >
-              <Text style={{ color: 'black', fontWeight: '600' }}>Next</Text>
-            </TouchableOpacity>
-          </>
+          <WasteTypeStep
+            selectedTypes={selectedTypes}
+            onSelect={handleWasteTypeToggle}
+            adaptiveStyles={{ padding: 20, fontSize: 16, spacing: 12 }}
+          />
         );
       case 'dateTime':
         return <DateTimeStep selectedDate={selectedDate} onSelectDate={setSelectedDate} adaptiveStyles={{ padding: 20, fontSize: 16, spacing: 12 }} />;
@@ -172,9 +166,39 @@ export default function CustomerRequestScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={[styles.header, { paddingTop: insets.top }]}>
-        <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
+      {/* Map view */}
+      <MapView
+        style={styles.map}
+        region={(() => {
+          if (requestData.location && addressToCoords[requestData.location]) {
+            const { latitude, longitude } = addressToCoords[requestData.location];
+            return {
+              latitude,
+              longitude,
+              latitudeDelta: 0.01,
+              longitudeDelta: 0.01,
+            };
+          }
+          // Default region (São Paulo)
+          return {
+            latitude: -23.55052,
+            longitude: -46.633308,
+            latitudeDelta: 0.05,
+            longitudeDelta: 0.05,
+          };
+        })()}
+      >
+        {requestData.location && addressToCoords[requestData.location] && (
+          <Marker
+            coordinate={addressToCoords[requestData.location]}
+            title={requestData.location}
+          />
+        )}
+      </MapView>
+
+      {/* Header overlay */}
+      <View style={[styles.headerOverlay, { paddingTop: insets.top }]}> 
+        <TouchableOpacity style={styles.backButtonOverlay} onPress={handleBackPress}>
           <Ionicons name="arrow-back" size={24} color={theme.colors.text} />
         </TouchableOpacity>
 
@@ -193,11 +217,6 @@ export default function CustomerRequestScreen() {
             <Text style={styles.profileInitial}>{currentUser.name?.charAt(0) || 'U'}</Text>
           </View>
         </View>
-      </View>
-
-      {/* Mock Map */}
-      <View style={styles.map}>
-        <Text style={styles.mapText}>Map View (Mock)</Text>
       </View>
 
       {/* Bottom Sheet */}
@@ -222,7 +241,16 @@ export default function CustomerRequestScreen() {
         <View style={{ alignItems: 'center', paddingVertical: 12 }}>
           <View style={{ width: 40, height: 4, backgroundColor: '#E0E0E0', borderRadius: 2 }} />
         </View>
-        <ScrollView style={{ flex: 1, paddingHorizontal: 16 }}>{renderStepContent()}</ScrollView>
+        {/* Only wrap non-list steps in ScrollView, otherwise render directly */}
+        {currentStep === 'location' || currentStep === 'dateTime' ? (
+          <ScrollView style={{ flex: 1, paddingHorizontal: 16 }}>
+            {renderStepContent()}
+          </ScrollView>
+        ) : (
+          <View style={{ flex: 1, paddingHorizontal: 16 }}>
+            {renderStepContent()}
+          </View>
+        )}
       </View>
 
       {successData && (
@@ -240,7 +268,27 @@ export default function CustomerRequestScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingBottom: 15, backgroundColor: 'transparent' },
+  headerOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingBottom: 15,
+    backgroundColor: 'transparent',
+    zIndex: 10,
+  },
+  backButtonOverlay: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'white',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   backButton: {
     width: 40,
     height: 40,
@@ -258,7 +306,7 @@ const styles = StyleSheet.create({
   profileImage: { width: 40, height: 40, borderRadius: 20, backgroundColor: theme.colors.secondary, justifyContent: 'center', alignItems: 'center' },
   profileInitial: { color: 'white', fontSize: 16, fontWeight: '600' },
   map: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  mapText: { fontSize: 24, color: theme.colors.textSecondary },
+  mapText: { fontSize: 24, color: theme.colors.textSecondary, width: '100%', textAlign: 'center', height: '100%' },
   locationDisplay: {
     flex: 1,
     flexDirection: 'row',
