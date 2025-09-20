@@ -141,7 +141,8 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: theme.colors.background,
     paddingTop: 12,
-    paddingHorizontal: 16,
+    marginBottom: -20,
+    paddingHorizontal: 10,
     minHeight: Platform.select({ ios: 96, android: 88, default: 88 }),
   },
   tabsContainer: {
