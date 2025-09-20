@@ -66,3 +66,16 @@ export enum ErrorType {
     STORAGE = 'storage',
     HARDWARE = 'hardware'
 }
+
+// Pickup request structure
+export interface PickupRequest {
+  id: string;
+  customerId: string;
+  address: string;
+  wasteType: WasteType[];
+  quantity: number;
+  scheduledDate: Date;
+  notes?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}

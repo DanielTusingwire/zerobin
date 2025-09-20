@@ -146,7 +146,7 @@ export default function CustomerHomeScreen() {
           </View>
         </View>
         {/* Upper stats card (single card with divider) */}
-        {/* <View style={styles.upperStatsCard}>
+        <View style={styles.upperStatsCard}>
           <View style={styles.statsRow}>
             <View style={styles.statCard}>
               <Text style={styles.statNumber}>{upcomingPickups}</Text>
@@ -160,7 +160,7 @@ export default function CustomerHomeScreen() {
               <Text style={styles.statSubLabel}>Pickups</Text>
             </View>
           </View>
-        </View> */}
+        </View>
 
         {/* Two separate impact cards */}
         <View style={styles.impactRow}>
@@ -475,8 +475,8 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 30,
     right: 20,
-    width: 70,
-    height: 70,
+    width: 60,
+    height: 60,
     borderRadius: 60,
     backgroundColor: theme.colors.secondary,
     shadowColor: "#000",
@@ -490,8 +490,8 @@ const styles = StyleSheet.create({
   fabInner: {
     justifyContent: "center",
     alignItems: "center",
-    width: 60,
-    height: 60,
+    width: 50,
+    height: 50,
     borderRadius: 60,
     borderWidth: 2,
     borderColor: theme.colors.primary,
