@@ -286,8 +286,8 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
   },
   logoImage: {
-    height: 28,
-    width: 120,
+    height: 25,
+    width: 90,
   },
   notificationButton: {
     position: "relative",
