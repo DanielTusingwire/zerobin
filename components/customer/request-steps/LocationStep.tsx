@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { theme } from '../../../constants/theme';
+import { GeocodeResult, geocodeSearch } from '../../../services/geocodeService';
 
 interface AdaptiveStyles {
   padding: number;
@@ -16,20 +17,28 @@ interface LocationStepProps {
 
 const LocationStep: React.FC<LocationStepProps> = ({ onSelect, adaptiveStyles }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [results, setResults] = useState<GeocodeResult[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const allLocations = [
-    { name: 'Associação de Catadores (ASCAS)', address: 'Av. Santos Dumont, 764' },
-    { name: 'Coleta Municipal', address: 'Rua Batista de Castro, 37' },
-    { name: 'Centro de Reciclagem Verde', address: 'Rua das Flores, 123' },
-    { name: 'EcoPonto Vila Madalena', address: 'Av. Paulista, 1000' },
-    { name: 'Cooperativa Recicla SP', address: 'Rua Augusta, 456' },
-    { name: 'Ponto de Coleta Seletiva', address: 'Av. Faria Lima, 789' },
-  ];
-
-  const filteredLocations = allLocations.filter(location =>
-    location.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    location.address.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  useEffect(() => {
+    let active = true;
+    if (searchQuery.length < 3) {
+      setResults([]);
+      return;
+    }
+    setLoading(true);
+    geocodeSearch(searchQuery)
+      .then(res => {
+        if (active) setResults(res);
+      })
+      .catch(() => {
+        if (active) setResults([]);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => { active = false; };
+  }, [searchQuery]);
 
   return (
     <View style={[styles.stepContainer, { padding: adaptiveStyles.padding }]}>
@@ -63,20 +72,24 @@ const LocationStep: React.FC<LocationStepProps> = ({ onSelect, adaptiveStyles })
         <Ionicons name="mic" size={20} color={theme.colors.textSecondary} />
       </View>
 
-      {/* Location List */}
+      {/* Location List (API results) */}
       <View style={styles.locationList}>
-        {filteredLocations.map((location, index) => (
+        {loading && <ActivityIndicator size="small" color={theme.colors.primary} style={{ marginVertical: 10 }} />}
+        {!loading && results.length === 0 && searchQuery.length >= 3 && (
+          <Text style={{ color: theme.colors.textSecondary, textAlign: 'center', marginVertical: 10 }}>No results found.</Text>
+        )}
+        {results.map((location, index) => (
           <TouchableOpacity
             key={index}
             style={styles.locationItem}
-            onPress={() => onSelect(location.address)}
+            onPress={() => onSelect(location.display_name)}
           >
             <View style={styles.locationIcon}>
               <Ionicons name="location" size={20} color={theme.colors.secondary} />
             </View>
             <View style={styles.locationInfo}>
-              <Text style={styles.locationName}>{location.name}</Text>
-              <Text style={styles.locationAddress}>{location.address}</Text>
+              <Text style={styles.locationName}>{location.display_name}</Text>
+              <Text style={styles.locationAddress}>{`Lat: ${location.lat}, Lon: ${location.lon}`}</Text>
             </View>
           </TouchableOpacity>
         ))}

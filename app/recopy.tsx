@@ -1,11 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import React, { useCallback, useState, useRef, useMemo } from 'react';
-import { Alert, Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View, Button } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { Alert, Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-
-import BottomSheet, { BottomSheetScrollView} from "@gorhom/bottom-sheet";
 
 import MapView, { Marker } from 'react-native-maps';
 import DateTimeStep from '../components/customer/request-steps/DateTimeStep';
@@ -28,8 +25,7 @@ interface RequestData {
 }
 
 export default function CustomerRequestScreen() {
-
-const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const { state: appState } = useAppContext();
   const { createPickupRequest } = useCustomerContext();
   const insets = useSafeAreaInsets();
@@ -173,82 +169,107 @@ const [selectedDate, setSelectedDate] = useState<Date | null>(null);
         return null;
     }
   };
-  // hooks
-  const sheetRef = useRef<BottomSheet>(null);
-
-  // variables
-  // const data = useMemo(
-  //   () =>
-  //     Array(50)
-  //       .fill(0)
-  //       .map((_, index) => `index-${index}`),
-  //   []
-  // );
-  const snapPoints = useMemo(() => ["25%", "50%", "90%"], []);
-
-  // callbacks
-  const handleSheetChange = useCallback((index: any) => {
-    console.log("handleSheetChange", index);
-  }, []);
-
 
   return (
-    <GestureHandlerRootView style={styles.container}>
-          {/* Header overlay */}
-          <View style={[styles.headerOverlay, { paddingTop: insets.top }]}> 
-            <TouchableOpacity style={styles.backButtonOverlay} onPress={handleBackPress}>
-              <Ionicons name="arrow-back" size={24} color={theme.colors.text} />
-            </TouchableOpacity>
-    
-            {/* Show selected location after Step 1 */}
-            {currentStep !== 'location' && requestData.location && (
-              <View style={styles.locationDisplay}>
-                <Ionicons name="location" size={16} color={theme.colors.secondary} />
-                <Text style={styles.locationText} numberOfLines={1}>
-                  {requestData.location}
-                </Text>
-              </View>
-            )}
-    
-            <View style={styles.profileButton}>
-              <View style={styles.profileImage}>
-                <Text style={styles.profileInitial}>{currentUser.name?.charAt(0) || 'U'}</Text>
-              </View>
-            </View>
-          </View>
-
-
     <View style={styles.container}>
-      <MapView style={styles.map} />
-    </View>
-
-    
-      <BottomSheet
-        ref={sheetRef}
-        index={1}
-        snapPoints={snapPoints}
-        enableDynamicSizing={false}
-        onChange={handleSheetChange}
+      {/* Map view */}
+      <MapView
+        style={styles.map}
+        region={(() => {
+          if (requestData.coordinates) {
+            return {
+              latitude: requestData.coordinates.latitude,
+              longitude: requestData.coordinates.longitude,
+              latitudeDelta: 0.01,
+              longitudeDelta: 0.01,
+            };
+          }
+          // Default region (São Paulo)
+          return {
+            latitude: -23.55052,
+            longitude: -46.633308,
+            latitudeDelta: 0.05,
+            longitudeDelta: 0.05,
+          };
+        })()}
       >
-        <BottomSheetScrollView contentContainerStyle={styles.container}>
-                 <View style={{ alignItems: 'center', paddingVertical: 1 }}>
-                
-                 </View>
-                 {/* Only wrap non-list steps in ScrollView, otherwise render directly */}
-                 {currentStep === 'location' || currentStep === 'dateTime' ? (
-                   <ScrollView style={{ flex: 1, paddingHorizontal: 16 }}>
-                     {renderStepContent()}
-                   </ScrollView>
-                 ) : (
-                   <View style={{ flex: 1, paddingHorizontal: 16 }}>
-                     {renderStepContent()}
-                   </View>
-                 )}
-        </BottomSheetScrollView>
-      </BottomSheet>
-    </GestureHandlerRootView>
+        {requestData.coordinates && (
+          <Marker
+            coordinate={requestData.coordinates}
+            title={requestData.location}
+          />
+        )}
+      </MapView>
+
+      {/* Header overlay */}
+      <View style={[styles.headerOverlay, { paddingTop: insets.top }]}> 
+        <TouchableOpacity style={styles.backButtonOverlay} onPress={handleBackPress}>
+          <Ionicons name="arrow-back" size={24} color={theme.colors.text} />
+        </TouchableOpacity>
+
+        {/* Show selected location after Step 1 */}
+        {currentStep !== 'location' && requestData.location && (
+          <View style={styles.locationDisplay}>
+            <Ionicons name="location" size={16} color={theme.colors.secondary} />
+            <Text style={styles.locationText} numberOfLines={1}>
+              {requestData.location}
+            </Text>
+          </View>
+        )}
+
+        <View style={styles.profileButton}>
+          <View style={styles.profileImage}>
+            <Text style={styles.profileInitial}>{currentUser.name?.charAt(0) || 'U'}</Text>
+          </View>
+        </View>
+      </View>
+
+      {/* Bottom Sheet */}
+      <View
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: height * 0.6,
+          backgroundColor: 'white',
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 8,
+          elevation: 10,
+          paddingBottom: 35,
+        }}
+      >
+        <View style={{ alignItems: 'center', paddingVertical: 12 }}>
+          <View style={{ width: 40, height: 4, backgroundColor: '#E0E0E0', borderRadius: 2 }} />
+        </View>
+        {/* Only wrap non-list steps in ScrollView, otherwise render directly */}
+        {currentStep === 'location' || currentStep === 'dateTime' ? (
+          <ScrollView style={{ flex: 1, paddingHorizontal: 16 }}>
+            {renderStepContent()}
+          </ScrollView>
+        ) : (
+          <View style={{ flex: 1, paddingHorizontal: 16 }}>
+            {renderStepContent()}
+          </View>
+        )}
+      </View>
+
+      {successData && (
+        <RequestSuccess
+          visible={showSuccess}
+          requestId={successData.requestId}
+          estimatedCost={successData.estimatedCost}
+          onViewSchedule={handleViewSchedule}
+          onClose={handleCloseSuccess}
+        />
+      )}
+    </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
@@ -311,5 +332,4 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: theme.colors.text,
   },
-  
 });
