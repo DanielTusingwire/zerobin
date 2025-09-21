@@ -214,7 +214,7 @@ export default function CustomerHomeScreen() {
 
           <TouchableOpacity
             style={styles.secondaryAction}
-            onPress={() => router.push("/customer/schedule")}
+            onPress={() => router.push("/customer/bottomsheettest")}
           >
             <View style={styles.secondaryActionIcon}>
               <Ionicons
