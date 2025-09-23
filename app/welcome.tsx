@@ -1,7 +1,10 @@
 // import { theme } from '@/constants/theme'; // Not needed for this screen
 import { theme } from '@/constants/theme';
+import { useNavigationContext } from '@/contexts';
+import { useAuth } from '@/contexts/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
 import {
     StyleSheet,
@@ -35,6 +38,30 @@ export default function WelcomeScreen() {
     const [currentWordIndex, setCurrentWordIndex] = useState(0);
     const [displayedText, setDisplayedText] = useState('');
     const [isTyping, setIsTyping] = useState(true);
+
+    const { isAuthenticated, user, isLoading: authLoading } = useAuth();
+    const { currentRole, isLoading: roleLoading } = useNavigationContext();
+
+    // Check authentication status when welcome screen loads
+    useEffect(() => {
+        if (!authLoading && !roleLoading) {
+            if (isAuthenticated && user) {
+                if (user.profile.isProfileComplete) {
+                    if (currentRole) {
+                        // User is authenticated, profile complete, and has a role - go to main app
+                        router.replace('/(tabs)');
+                    } else {
+                        // User is authenticated and profile complete but no role - go to role selection
+                        router.replace('/role-selection');
+                    }
+                } else {
+                    // User is authenticated but profile incomplete - go to profile setup
+                    router.replace('/profile-setup');
+                }
+            }
+            // If not authenticated, stay on welcome screen
+        }
+    }, [isAuthenticated, user, authLoading, currentRole, roleLoading]);
     // Cursor is always visible (no blinking)
 
     // Typewriter effect
@@ -86,6 +113,7 @@ export default function WelcomeScreen() {
 
     return (
         <View style={styles.container}>
+            <StatusBar style="dark" backgroundColor={theme.colors.primary} />
             <SafeAreaView style={styles.topSafeArea}>
                 {/* Top Section - Language Selector */}
                 <View style={styles.topSection}>
