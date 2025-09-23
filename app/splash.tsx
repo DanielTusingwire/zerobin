@@ -1,74 +1,54 @@
+import { theme } from '@/constants/theme';
 import { router } from 'expo-router';
+import * as ExpoSplashScreen from 'expo-splash-screen';
 import React, { useEffect } from 'react';
 import {
-    Dimensions,
+    Image,
     StyleSheet,
-    Text,
     View
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNavigationContext } from '../contexts/NavigationContext';
-
-const { width, height } = Dimensions.get('window');
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SplashScreen() {
-    const { currentRole, isLoading } = useNavigationContext();
-    const insets = useSafeAreaInsets();
-
     useEffect(() => {
-        // Show splash for at least 2 seconds
+        // Hide the default Expo splash screen immediately
+        ExpoSplashScreen.hideAsync();
+
+        // Show our custom splash for 3 seconds then navigate to welcome
         const timer = setTimeout(() => {
-            if (!isLoading) {
-                if (currentRole) {
-                    // User has a saved role, navigate to their home screen
-                    if (currentRole === 'driver') {
-                        router.replace('/(tabs)/driver/jobs');
-                    } else {
-                        router.replace('/(tabs)/customer/home');
-                    }
-                } else {
-                    // No saved role, show role selection
-                    router.replace('/role-selection');
-                }
-            }
-        }, 2000);
+            router.replace('/welcome');
+        }, 3000);
 
         return () => clearTimeout(timer);
-    }, [currentRole, isLoading]);
+    }, []);
 
     return (
-        <View style={[styles.container, { paddingTop: insets.top }]}>
+        <SafeAreaView style={styles.container}>
             <View style={styles.logoContainer}>
-                <Text style={styles.logoText}>
-                    Zero<Text style={styles.logoAccent}>Bin</Text>
-                    <Text style={styles.logoDot}>.</Text>
-                </Text>
+                <Image
+                    source={require('../assets/logo/zerobin.png')}
+                    style={styles.logo}
+                    resizeMode="contain"
+                />
             </View>
-        </View>
+        </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#EEFF93', // Bright lime green from the image
+        backgroundColor: theme.colors.primary, // Lime green background
         justifyContent: 'center',
         alignItems: 'center',
     },
     logoContainer: {
-        alignItems: 'center',
+        flex: 1,
         justifyContent: 'center',
+        alignItems: 'center',
     },
-    logoText: {
-        fontSize: 48,
-        fontWeight: '800',
-        color: '#1A1A1A', // Dark text
-        letterSpacing: -1,
-    },
-    logoAccent: {
-        color: '#4CAF50', // Green accent for "Bin"
-    },
-    logoDot: {
-        color: '#4CAF50', // Green dot
+    logo: {
+        width: 200,
+        height: 100,
     },
 });

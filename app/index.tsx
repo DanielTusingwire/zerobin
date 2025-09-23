@@ -1,26 +1,41 @@
 import { router } from 'expo-router';
-import { useEffect } from 'react';
-import { useNavigationContext } from '../contexts/NavigationContext';
+import React, { useEffect } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { useAuth } from '../contexts/AuthContext';
 
-// App entry point - handles initial navigation based on saved role
+// App entry point - handles initial navigation based on authentication status
 export default function AppIndex() {
-    const { currentRole, isLoading } = useNavigationContext();
+    const { isAuthenticated, isLoading, user } = useAuth();
 
     useEffect(() => {
         if (!isLoading) {
-            if (currentRole) {
-                // User has a saved role, navigate to their home screen
-                if (currentRole === 'customer') {
-                    router.replace('/(tabs)/customer/home');
+            if (isAuthenticated && user) {
+                // Check if profile is complete
+                if (user.profile.isProfileComplete) {
+                    router.replace('/(tabs)');
                 } else {
-                    router.replace('/(tabs)/driver/jobs');
+                    router.replace('/profile-setup');
                 }
             } else {
-                // No saved role, show role selection
-                router.replace('/role-selection');
+                // Not authenticated, start onboarding
+                router.replace('/splash');
             }
         }
-    }, [currentRole, isLoading]);
+    }, [isAuthenticated, isLoading, user]);
 
-    return null;
+    // Show loading screen while checking authentication
+    return (
+        <View style={styles.container}>
+            <ActivityIndicator size="large" color="#22C55E" />
+        </View>
+    );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#FFFFFF',
+    },
+});
