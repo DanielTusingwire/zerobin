@@ -1,5 +1,6 @@
 import { theme } from '@/constants/theme';
 import { router } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import {
     Alert,
@@ -96,6 +97,7 @@ export default function SignUpScreen() {
 
     return (
         <SafeAreaView style={styles.container}>
+            <StatusBar style="dark" backgroundColor="#FFFFFF" />
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={styles.keyboardView}

@@ -1,6 +1,7 @@
 import { theme } from '@/constants/theme';
 import { router } from 'expo-router';
 import * as ExpoSplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
 import React, { useEffect } from 'react';
 import {
     Image,
@@ -24,6 +25,7 @@ export default function SplashScreen() {
 
     return (
         <SafeAreaView style={styles.container}>
+            <StatusBar style="dark" backgroundColor={theme.colors.primary} />
             <View style={styles.logoContainer}>
                 <Image
                     source={require('../assets/logo/zerobin.png')}

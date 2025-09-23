@@ -1,5 +1,7 @@
 import { theme } from '@/constants/theme';
+import { useNavigationContext } from '@/contexts';
 import { router } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import {
     Alert,
@@ -24,6 +26,7 @@ export default function SignInScreen() {
     const [emailError, setEmailError] = useState('');
 
     const { signIn } = useAuth();
+    const { currentRole } = useNavigationContext();
 
     const validateEmail = (email: string) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -55,7 +58,16 @@ export default function SignInScreen() {
             const result = await signIn(email.trim(), password);
 
             if (result.success) {
-                router.replace('/(tabs)');
+                // Check if user has completed profile and selected role
+                if (result.user?.profile.isProfileComplete) {
+                    if (currentRole) {
+                        router.replace('/(tabs)');
+                    } else {
+                        router.replace('/role-selection');
+                    }
+                } else {
+                    router.replace('/profile-setup');
+                }
             } else {
                 Alert.alert('Login Failed', result.error || 'Invalid credentials');
             }
@@ -80,6 +92,7 @@ export default function SignInScreen() {
 
     return (
         <SafeAreaView style={styles.container}>
+            <StatusBar style="dark" backgroundColor="#FFFFFF" />
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={styles.keyboardView}

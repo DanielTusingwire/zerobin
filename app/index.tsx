@@ -1,29 +1,20 @@
 import { router } from 'expo-router';
 import React, { useEffect } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
-import { useAuth } from '../contexts/AuthContext';
 
-// App entry point - handles initial navigation based on authentication status
+// App entry point - immediately navigate to splash screen
 export default function AppIndex() {
-    const { isAuthenticated, isLoading, user } = useAuth();
-
     useEffect(() => {
-        if (!isLoading) {
-            if (isAuthenticated && user) {
-                // Check if profile is complete
-                if (user.profile.isProfileComplete) {
-                    router.replace('/(tabs)');
-                } else {
-                    router.replace('/profile-setup');
-                }
-            } else {
-                // Not authenticated, start onboarding
-                router.replace('/splash');
-            }
-        }
-    }, [isAuthenticated, isLoading, user]);
+        // Navigate to splash immediately on app start
+        console.log('Index: Navigating to splash immediately');
+        const timer = setTimeout(() => {
+            router.replace('/splash');
+        }, 100); // Small delay to ensure router is ready
 
-    // Show loading screen while checking authentication
+        return () => clearTimeout(timer);
+    }, []);
+
+    // Show loading screen briefly
     return (
         <View style={styles.container}>
             <ActivityIndicator size="large" color="#22C55E" />
