@@ -12,35 +12,35 @@ const wasteTypes = [
   {
     id: 'organic',
     name: 'Organic',
-    image: require('../../../assets/waste/bin.png'),
+    image: require('../../../assets/waste/organic.png'),
     subtitle: 'Food scraps, garden waste, etc.',
     bgColor: '#E0F7FA', // light cyan
   },
   {
     id: 'plastic',
     name: 'Plastic',
-    image: require('../../../assets/waste/waste.png'),
+    image: require('../../../assets/waste/plastic.png'),
     subtitle: 'Bottles, containers, packaging.',
     bgColor: '#FFF3E0', // light orange
   },
   {
     id: 'paper',
     name: 'Paper',
-    image: require('../../../assets/waste/bin.png'),
+    image: require('../../../assets/waste/paper.png'),
     subtitle: 'Newspapers, cardboard, office paper.',
     bgColor: '#E8F5E9', // light green
   },
   {
     id: 'glass',
     name: 'Glass',
-    image: require('../../../assets/waste/waste.png'),
+    image: require('../../../assets/waste/glass.png'),
     subtitle: 'Bottles, jars, glassware.',
     bgColor: '#F3E5F5', // light purple
   },
   {
     id: 'e-waste',
     name: 'E-Waste',
-    image: require('../../../assets/waste/bin.png'),
+    image: require('../../../assets/waste/ewaste.png'),
     subtitle: 'Electronics, batteries, cables.',
     bgColor: '#FFEBEE', // light red
   },

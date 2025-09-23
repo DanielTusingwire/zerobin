@@ -45,8 +45,7 @@ export default function BottomTabBar({
         iconNameUnfocused = "calendar-outline";
         iconNameFocused = "calendar";
       } else if (
-        routeLower.includes("tips") ||
-        routeLower.includes("support")
+        routeLower.includes("tips")
       ) {
         iconNameUnfocused = "help-circle-outline";
         iconNameFocused = "help-circle";

@@ -30,7 +30,7 @@ export const Header: React.FC<HeaderProps> = ({
     rightIcon,
     onLeftPress,
     onRightPress,
-    backgroundColor = theme.colors.primary,
+    backgroundColor = theme.colors.background,
     style,
     showBackButton = false,
 }) => {
@@ -42,7 +42,7 @@ export const Header: React.FC<HeaderProps> = ({
         style,
     ];
 
-    const textColor = backgroundColor === theme.colors.primary
+    const textColor = backgroundColor === theme.colors.text
         ? theme.colors.background
         : theme.colors.text;
 
@@ -50,7 +50,7 @@ export const Header: React.FC<HeaderProps> = ({
         <View style={headerStyle}>
             <StatusBar
                 backgroundColor={backgroundColor}
-                barStyle={backgroundColor === theme.colors.primary ? 'light-content' : 'dark-content'}
+                barStyle={backgroundColor === theme.colors.secondary ? 'light-content' : 'dark-content'}
             />
 
             <View style={styles.content}>
@@ -102,7 +102,7 @@ export const Header: React.FC<HeaderProps> = ({
 const styles = StyleSheet.create({
     container: {
         paddingBottom: theme.spacing.md,
-        ...theme.shadows.sm,
+        
     },
     content: {
         flexDirection: 'row',

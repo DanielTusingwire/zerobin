@@ -172,7 +172,7 @@ export default function CustomerScheduleScreen() {
     }, []);
 
     const handleNewRequest = useCallback(() => {
-        router.push('/(tabs)/customer/request');
+        router.push('/request');
     }, []);
 
     const renderPickupItem = useCallback(({ item }: { item: PickupRequest }) => (
@@ -259,8 +259,8 @@ export default function CustomerScheduleScreen() {
                     <RefreshControl
                         refreshing={refreshing}
                         onRefresh={handleRefresh}
-                        colors={[theme.colors.primary]}
-                        tintColor={theme.colors.primary}
+                        colors={[theme.colors.secondary]}
+                        tintColor={theme.colors.secondary}
                     />
                 }
                 showsVerticalScrollIndicator={false}
@@ -294,5 +294,6 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: theme.spacing.xl,
         right: theme.spacing.xl,
+        backgroundColor: theme.colors.secondary,
     },
 });
